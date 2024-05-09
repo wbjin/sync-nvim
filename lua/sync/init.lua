@@ -41,6 +41,7 @@ M.setup = function()
         {}
     )
     vim.api.nvim_create_user_command("Sync", sync, {})
+    vim.keymap.set('n', "<leader>rs", ":Sync<CR>")
 end
 
 function set_local(path)
