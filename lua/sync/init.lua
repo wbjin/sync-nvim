@@ -7,7 +7,12 @@ local config = {
 
 local utils = require "sync.utils"
 local cur_dir = io.popen("pwd"):read()
-local config = dofile(cur_dir .. "/.nvim/config.lua")
+local config = nil
+if vim.fn.isdirectory(".nvim") ~= 0 then
+    if vim.fn.filereadable(".nvim/config.lua") ~= 0 then
+        config = dofile(cur_dir .. "/.nvim/config.lua")
+    end
+end
 
 M.setup = function()
     vim.api.nvim_create_user_command("SyncInit",
@@ -16,47 +21,24 @@ M.setup = function()
         end,
         {}
     )
-    vim.api.nvim_create_user_command("SyncSetLocal",
-        function(args)
-            local path = vim.fn.input "path: "
-            set_local(path)
-        end,
-        {}
-    )
-    vim.api.nvim_create_user_command("SyncSetDest",
-        function(args)
-            local ssh = vim.fn.input "ssh: "
-            set_ssh(ssh)
-            print("Set ssh destination")
-        end,
-        {}
-    )
-    vim.api.nvim_create_user_command("SyncSetDestPath",
-        function(args)
-            local path = vim.fn.input "path: "
-            set_dest(path)
-            print("Set destination path")
-        end,
-        {}
-    )
-    vim.api.nvim_create_user_command("SyncSetAll",
-        function(args)
-            local local_path = vim.fn.input "Local path: "
-            local dest_ssh = vim.fn.input "ssh: "
-            local dest_path = vim.fn.input "Destination path: "
-            set_local(local_path)
-            set_ssh(dest_ssh)
-            set_dest(dest_path)
-            print("Set all")
-        end,
-        {}
-    )
     vim.api.nvim_create_user_command("Sync", sync, {})
     vim.keymap.set('n', "<leader>rs", ":Sync<CR>")
 end
 
 function sync()
+    if vim.fn.isdirectory(".nvim") == 0 then
+        print("Please set configs")
+        return
+    end
+    if vim.fn.filereadable(".nvim/config.lua") == 0 then
+        print("Please set configs")
+        return
+    end
     config = dofile(cur_dir .. "/.nvim/config.lua")
+    if config == nil then
+        print("Config file empty, you may have to copy over configs")
+        return
+    end
     if config["local_path"] == nil or config["dest_path"] == nil or config["remote"] == nil then
         print("Please set configs")
         return
