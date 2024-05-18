@@ -19,39 +19,17 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 #### Set local directory to source from
 ```lua
-:SyncSetLocal
+:SyncInit
 ```
-will prompt you with
+will make a config file in .nvim/config.lua in the root directory of your project
 ```lua
-path: 
+return {
+  dest_path = ".",
+  local_path = "",
+  remote = ""
+}
 ```
-which should be an absolute path to the directory to source from.
-
-#### Set destination ssh
-```lua
-:SyncSetDest
-```
-will prompt you with
-```lua
-ssh: 
-```
-which should be the destination machine
-
-#### Set destination directory path
-```lua
-:SyncSetDestPath
-```
-will prompt you with
-```lua
-path: 
-```
-which should be the path to directory on the remote to send to. Don't enter anything if destination directory is the remote's root directory.
-
-#### Set all
-```lua
-:SyncSetAll
-```
-will allow you to set everything at once.
+The default destination path is the root of your remote and the default local path is the root of your project.
 
 #### Sync
 ```lua

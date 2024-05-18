@@ -1,14 +1,25 @@
 local M = {}
-local local_absolute_path = nil
-local dest_absolute_path = nil
-local dest_ssh = nil
+local config = {
+    local_path = nil,
+    remote = nil,
+    dest_path = nil,
+}
+
+local utils = require "sync.utils"
+local cur_dir = io.popen("pwd"):read()
+local config = dofile(cur_dir .. "/.nvim/config.lua")
 
 M.setup = function()
+    vim.api.nvim_create_user_command("SyncInit",
+        function()
+            utils.make_config()
+        end,
+        {}
+    )
     vim.api.nvim_create_user_command("SyncSetLocal",
         function(args)
             local path = vim.fn.input "path: "
             set_local(path)
-            print("Set local path")
         end,
         {}
     )
@@ -44,27 +55,13 @@ M.setup = function()
     vim.keymap.set('n', "<leader>rs", ":Sync<CR>")
 end
 
-function set_local(path)
-    local_absolute_path = path
-end
-
-function set_dest(path)
-    if path[1] == '/' then
-        path = std:sub(1)
-    end
-    dest_absolute_path = path
-end
-
-function set_ssh(ssh)
-    dest_ssh = ssh
-end
-
 function sync()
-    if local_absolute_path == nil or dest_ssh == nil or dest_absolute_path == nil then
+    config = dofile(cur_dir .. "/.nvim/config.lua")
+    if config["local_path"] == nil or config["dest_path"] == nil or config["remote"] == nil then
         print("Please set configs")
         return
     end
-    local command = "rsync -a " .. local_absolute_path .. " " .. dest_ssh .. ":" .. dest_absolute_path
+    local command = "rsync -a " .. config["local_path"] .. " " .. config["remote"] .. ":" .. config["dest_path"]
     local ret = io.popen(command)
     local sucess = {ret:close()}
     if sucess[1] then
