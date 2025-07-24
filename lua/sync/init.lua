@@ -30,12 +30,21 @@ end
 
 function run_sync(command)
     utils.logger(command)
-    local ret = io.popen(command)
-    local sucess = {ret:close()}
-    if sucess[1] then
-        print("Sync success")
-    else
-        print("Sync fail")
+    local function execute()
+        local ret = io.popen(command)
+        if not ret then
+            error("Failed to rsync")
+        end
+        local sucess = {ret:close()}
+        if sucess[1] then
+            print("Sync success")
+        else
+            print("Sync fail")
+        end
+    end
+    local status, err = pcall(execute)
+    if not status then
+        print("Error caught: " .. err)
     end
 end
 
@@ -45,7 +54,10 @@ function sync()
         return
     end
     file_paths = utils.make_filepaths(config, true)
-    local command = "rsync -varz --exclude .nvim --exclude __pycache__ " .. file_paths
+    -- local command = "rsync -varz --exclude .nvim --exclude __pycache__ --exclude env --exclude .git --exclude .ruff_cache " .. file_paths
+    local command = "rsync -varz  "
+                        .. "--exclude='.*' --exclude='*.*/' --exclude='__pycache__' "
+                        .. file_paths
 
     run_sync(command)
 end
@@ -58,8 +70,8 @@ function sync_inc()
     includes = utils.make_string(config["includes"], "--include")
     file_paths = utils.make_filepaths(config, true)
     local command = "rsync -varz  "
+                        .. "--exclude='*' --exclude='__pycache__' --exclude='.git'"
                         .. includes
-                        .. "--exclude='*' --exclude='__pycache__' "
                         .. file_paths
 
     run_sync(command)

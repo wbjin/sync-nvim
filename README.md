@@ -27,7 +27,7 @@ return {
   dest_path = ".",
   local_path = "",
   remote = "",
-  includes = {"LICENSE", "lua/sync/init.lua"},
+  includes = {},
 }
 ```
 The default destination path is the root of your remote and the default local path is the root of your project.
@@ -49,5 +49,10 @@ is the default mapping for calling Sync
 ```
 will call rsync only for the files and directories specified in the `includes` list and sync the remote with the local path provided
 
+### SyncDown
+```lua
+:SyncDown
+```
+will call rsync and sync the local with the remote path provided
 
 
